@@ -818,4 +818,4 @@ def load_dataset(
     )
 
 
-DEFAULTDATA = load_dataset("icrp107_ame2020_nubase2020", load_sympy=True)
+DEFAULTDATA = load_dataset("nuscale_senior_design", load_sympy=True)
