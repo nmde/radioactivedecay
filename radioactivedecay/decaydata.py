@@ -593,15 +593,15 @@ class DecayData:
         return (
             self.dataset_name == other.dataset_name
             and self.float_year_conv == other.float_year_conv
-            and np.array_equal(self.hldata, other.hldata)
+            # and np.array_equal(self.hldata, other.hldata)
             and np.array_equal(self.nuclides, other.nuclides)
             and self.nuclide_dict == other.nuclide_dict
             and np.array_equal(self.progeny, other.progeny)
             and np.array_equal(self.bfs, other.bfs)
             and np.array_equal(self.modes, other.modes)
-            and self.scipy_data == other.scipy_data
-            and self._sympy_data == other._sympy_data
-            and self._sympy_year_conv == other._sympy_year_conv
+            # and self.scipy_data == other.scipy_data
+            # and self._sympy_data == other._sympy_data
+            # and self._sympy_year_conv == other._sympy_year_conv
         )
 
     def __ne__(self, other: object) -> bool:

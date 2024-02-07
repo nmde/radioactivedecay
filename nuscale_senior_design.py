@@ -1,7 +1,7 @@
 import radioactivedecay as rd
 import json as json
 
-inv = rd.Inventory({
+source = {
 'Kr-85': 8.07E+06,
 'Kr-85m': 5.59E+11,
 'Kr-87': 3.83E+12,
@@ -50,31 +50,34 @@ inv = rd.Inventory({
 'Sr-96': 4.40E+13,
 'Sr-97': 5.12E+13,
 'Sr-98': 1.66E+13
-}, 'Bq')
+}
 
+step = 1
 
-decayed = inv.decay(1, 'hr').activities('Bq')
-
-bins = [0, 0, 0, 0, 0, 0];
-
+decayed = rd.Inventory(source, "Bq")
 with open('radioactivedecay/nuscale_senior_design/nuclides.json') as nuclides_json:
     nuclide_data = json.load(nuclides_json)
-    for nuclide in decayed.keys():
-        gammas = nuclide_data[nuclide]['gammas']
-        for energy in gammas.keys():
-            e = float(energy)
-            if e < 1:
-                bins[0] += decayed[nuclide] * gammas[energy]
-            elif e < 2:
-                bins[1] += decayed[nuclide] * gammas[energy]
-            elif e < 3:
-                bins[2] += decayed[nuclide] * gammas[energy]
-            elif e < 4:
-                bins[3] += decayed[nuclide] * gammas[energy]
-            elif e < 5:
-                bins[4] += decayed[nuclide] * gammas[energy]
-            else:
-                bins[5] += decayed[nuclide] * gammas[energy]
-
-print(bins)
-
+    output = 'Bin 1,Bin 2,Bin 3,Bin 4,Bin 5,Bin 6\n'
+    for i in range(0, 10, step):
+        bins = [0, 0, 0, 0, 0, 0];
+        decayed.add(source, 'Bq');
+        decayed = decayed.decay(step, 'yr')
+        numbers = decayed.activities()
+        for nuclide in numbers.keys():
+            gammas = nuclide_data[nuclide]['gammas']
+            for energy in gammas.keys():
+                e = float(energy)
+                if e < 1:
+                    bins[0] += numbers[nuclide] * gammas[energy]
+                elif e < 2:
+                    bins[1] += numbers[nuclide] * gammas[energy]
+                elif e < 3:
+                    bins[2] += numbers[nuclide] * gammas[energy]
+                elif e < 4:
+                    bins[3] += numbers[nuclide] * gammas[energy]
+                elif e < 5:
+                    bins[4] += numbers[nuclide] * gammas[energy]
+                else:
+                    bins[5] += numbers[nuclide] * gammas[energy]
+        print(bins)
+print(output)
