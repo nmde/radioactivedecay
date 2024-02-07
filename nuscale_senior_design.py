@@ -52,32 +52,57 @@ source = {
 'Sr-98': 1.66E+13
 }
 
-step = 1
+test = rd.Inventory(source, 'Bq')
 
-decayed = rd.Inventory(source, "Bq")
+source_per_year = {}
+for nuclide in source:
+    source_per_year[nuclide] = source[nuclide] * 86400 # number of seconds in the desired time step
+
+decayed = rd.Inventory({}, "Bq")
 with open('radioactivedecay/nuscale_senior_design/nuclides.json') as nuclides_json:
     nuclide_data = json.load(nuclides_json)
     output = 'Bin 1,Bin 2,Bin 3,Bin 4,Bin 5,Bin 6\n'
-    for i in range(0, 10, step):
-        bins = [0, 0, 0, 0, 0, 0];
-        decayed.add(source, 'Bq');
-        decayed = decayed.decay(step, 'yr')
+    contributions = []
+    nuclide_list = set([])
+    i = 0
+    while i < 180: # maximum number of steps
+        bins = [0, 0, 0, 0, 0, 0]
+        contributions.append({})
+        decayed.add(source_per_year, 'Bq')
+        decayed = decayed.decay(1, 'd') # one unit of desired time step
         numbers = decayed.activities()
         for nuclide in numbers.keys():
+            nuclide_list.add(nuclide)
             gammas = nuclide_data[nuclide]['gammas']
+            contributions[i][nuclide] = numbers[nuclide]
             for energy in gammas.keys():
                 e = float(energy)
+                c = numbers[nuclide] * gammas[energy]
+                # contributions[i][nuclide] += c
                 if e < 1:
-                    bins[0] += numbers[nuclide] * gammas[energy]
+                    bins[0] += c
                 elif e < 2:
-                    bins[1] += numbers[nuclide] * gammas[energy]
+                    bins[1] += c
                 elif e < 3:
-                    bins[2] += numbers[nuclide] * gammas[energy]
+                    bins[2] += c
                 elif e < 4:
-                    bins[3] += numbers[nuclide] * gammas[energy]
+                    bins[3] += c
                 elif e < 5:
-                    bins[4] += numbers[nuclide] * gammas[energy]
+                    bins[4] += c
                 else:
-                    bins[5] += numbers[nuclide] * gammas[energy]
-        print(bins)
-print(output)
+                    bins[5] += c
+        output += ','.join(map(str, bins))
+        output += '\n'
+        i += 1
+    with open('decay.csv', 'w') as csv:
+        csv.write(output)
+    with open('nuclide_contributions.csv', 'w') as nuclides_csv:
+        contrib_output = ''
+        for nuclide in nuclide_list:
+            contrib_output += nuclide + ','
+        contrib_output += '\n'
+        for step in contributions:
+            for nuclide in nuclide_list:
+                contrib_output += str(step[nuclide]) + ','
+            contrib_output += '\n'
+        nuclides_csv.write(contrib_output)
