@@ -69,9 +69,9 @@ timestep_data = {
 }
 
 # Configuration options
-timestep = 's'
-steps = 10000
-output_rows = 50
+timestep = 'm'
+steps = 5.256E6
+output_rows = 5000
 
 total_output = 0
 source_per_timestep = {}
